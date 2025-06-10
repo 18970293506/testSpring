@@ -32,8 +32,6 @@ pipeline {
                     docker stop ${APP_NAME}-container || true
                     docker rm ${APP_NAME}-container || true
                     docker rmi ${APP_NAME}:${DOCKER_TAG} || true
-
-                    cd testSpring
                     docker build -t ${APP_NAME}:${DOCKER_TAG} .
                     docker run -d -p 8081:8081 --name ${APP_NAME}-container ${APP_NAME}:${DOCKER_TAG}
                 '''
