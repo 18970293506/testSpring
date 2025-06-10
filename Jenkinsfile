@@ -9,7 +9,7 @@ pipeline {
         APP_NAME = "demo-app"
         DOCKER_TAG = "latest"
         SERVER_IP = "your.server.ip.address"  // 替换为你的服务器 IP
-        SSH_CRED_ID = "root"  // Jenkins 中配置的 SSH 凭据 ID
+        SSH_CRED_ID = "jenkins-test"  // Jenkins 中配置的 SSH 凭据 ID
     }
 
     stages {
