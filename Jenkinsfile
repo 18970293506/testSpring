@@ -4,19 +4,33 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                echo 'Building the application...'
                 sh 'mvn clean package'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Deploy to Server (Optional)') {
             steps {
-                sh 'docker build -t spring-demo-app .'
+                echo 'Copying JAR file to server...'
+                sshagent(['server-ssh-credentials-id']) { // 使用 Jenkins 的 SSH 凭据
+                    sh '''
+                        scp target/demo-0.0.1-SNAPSHOT.jar user@yourserver:/opt/app/
+                        ssh user@yourserver "systemctl restart your-springboot-app"
+                    '''
+                }
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Build and Run Docker Image (Optional)') {
+            when {
+                expression { env.DEPLOY_DOCKER == "true" }
+            }
             steps {
-                sh 'docker run -d -p 8080:8080 --name spring-demo-container spring-demo-app'
+                echo 'Building Docker image...'
+                sh '''
+                    docker build -t demo-app .
+                    docker run -d -p 8081:8081 --name demo-container demo-app
+                '''
             }
         }
     }
