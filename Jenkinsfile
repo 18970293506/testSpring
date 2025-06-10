@@ -27,12 +27,12 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                echo '构建 Docker 镜像...'
-                sh 'docker build -t ${APP_NAME}:${DOCKER_TAG} .'
-            }
-        }
+//         stage('Build Docker Image') {
+//             steps {
+//                 echo '构建 Docker 镜像...'
+//                 sh 'docker build -t ${APP_NAME}:${DOCKER_TAG} .'
+//             }
+//         }
 
         stage('Deploy to Server via SSH') {
             steps {
