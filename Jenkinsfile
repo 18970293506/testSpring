@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3' // 这个名字要和 Global Tool Configuration 中一致
+        maven 'maven-3.8.6' // 这个名字要和 Global Tool Configuration 中一致
     }
 
     environment {
