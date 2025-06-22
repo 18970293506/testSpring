@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -8,7 +7,6 @@ pipeline {
 
     environment {
         APP_NAME = "demo-app"
-        // 删除 DOCKER_TAG 环境变量
     }
 
     stages {
@@ -22,48 +20,35 @@ pipeline {
             steps {
                 echo 'Maven 构建中...'
                 sh 'mvn clean package'
-                // 新增：存档构建产物
                 archiveArtifacts artifacts: "target/*.jar", allowEmptyArchive: false
             }
         }
-        // 新增：远程部署阶段
-        stage('Deploy to Server') {
+        stage('Deploy via SSH') {
             steps {
                 script {
-                    echo '正在部署到服务器...'
-                    // 使用 SSH 插件执行远程命令（需提前配置 SSH 凭据）
-                    sshPublisher(
-                        publishers: [
-                            sshPublisherDesc(
-                                configName: 'server-ssh-config', // Jenkins 系统设置的 SSH 配置名称
-                                transfers: [
-                                    transfer(
-                                        sourceFiles: "target/*.jar",
-                                        removePrefix: "target",
-                                        remoteDirectory: "/opt/app"
-                                    ),
-                                    transfer(
-                                        sourceFiles: "application.properties",
-                                        remoteDirectory: "/opt/app/config"
-                                    )
-                                ]
-                            ),
-                            sshPublisherDesc(
-                                configName: 'server-ssh-config',
-                                transfers: [
-                                    transfer(
-                                        execCommand: '''
-                                            # 停止旧服务
-                                            pkill -f demo-app || true
-                                            # 启动新服务
-                                            nohup java -jar /opt/app/*.jar --spring.config.location=/opt/app/config/application.properties > /opt/app/app.log 2>&1 &
-                                            echo "✅ 应用已启动"
-                                        '''
-                                    )
-                                ]
-                            )
-                        ]
-                    )
+                    echo '正在通过 SSH 部署...'
+                    // 使用 Jenkins 凭据管理
+                    sshagent(['server-ssh-credentials-id']) { // 替换为实际凭据 ID
+                        // 执行远程部署命令
+                        sh '''
+                            # 上传构建产物
+                            scp -o StrictHostKeyChecking=no target/*.jar jenkins@192.168.134.131:/opt/app/
+                            
+                            # 上传配置文件（可选）
+                            scp -o StrictHostKeyChecking=no application.properties jenkins@192.168.134.131:/opt/app/config/
+                            
+                            # 执行远程部署命令
+                            ssh -o StrictHostKeyChecking=no jenkins@192.168.134.131 <<EOF
+                                # 停止旧服务
+                                pkill -f demo-app || true
+                                
+                                # 启动新服务
+                                nohup java -jar /opt/app/*.jar --spring.config.location=/opt/app/config/application.properties > /opt/app/app.log 2>&1 &
+                                
+                                echo "✅ 应用已启动"
+EOF
+                        '''
+                    }
                 }
             }
         }
