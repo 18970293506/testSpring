@@ -17,7 +17,23 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/18970293506/testSpring.git'
             }
         }
-
+        stage('Login to Docker') {
+            steps {
+                script {
+                    echo '正在登录 Docker Hub...'
+                    // 使用 withCredentials 注入凭证
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker-hub-credentials',
+                        usernameVariable: 'lang',
+                        passwordVariable: '666666'
+                    )]) {
+                        sh '''
+                            docker login -u lang -p 666666
+                        '''
+                    }
+                }
+            }
+        }
         stage('Build with Maven') {
             steps {
                 echo 'Maven 构建中...'
