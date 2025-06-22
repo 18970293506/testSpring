@@ -33,7 +33,7 @@ pipeline {
                     docker rm ${APP_NAME}-container || true
                     docker rmi ${APP_NAME}:${DOCKER_TAG} || true
                     docker build -t ${APP_NAME}:${DOCKER_TAG} .
-                    docker run -d -p 8080:8080 --name ${APP_NAME}-container ${APP_NAME}:${DOCKER_TAG}
+                    docker run -d -p 8081:8080 --name ${APP_NAME}-container ${APP_NAME}:${DOCKER_TAG}
                 '''
             }
         }
