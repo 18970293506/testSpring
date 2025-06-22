@@ -28,7 +28,7 @@ pipeline {
                         passwordVariable: '666666'
                     )]) {
                         sh '''
-                            docker login -u lang -p 666666
+                            docker login -u lang -p 666666 --server https://vv1p4348.mirror.aliyuncs.com  && echo "登录成功" || echo "登录失败"
                         '''
                     }
                 }
